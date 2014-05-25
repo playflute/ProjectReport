@@ -1,3 +1,0 @@
-THis is my first git try
-
-This is the second change
