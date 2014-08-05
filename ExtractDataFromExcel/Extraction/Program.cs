@@ -12,6 +12,7 @@ namespace Extraction
 
     class Program
     {
+        private double totalEventNumber = 0;
         private DataSet ds = null;
         private DateTime today = DateTime.Today;//get today's datetime
         private Dictionary<string, Int32> Activity_Dic = new Dictionary<string, int>();
@@ -103,6 +104,10 @@ namespace Extraction
 
 
             }
+            using (Week8Container w8c = new Week8Container())
+            {
+                totalEventNumber = w8c.DurationSet.Count();
+            }
  
         }
         /// <summary>
@@ -113,7 +118,7 @@ namespace Extraction
             
             foreach (var item in Activity_Dic)
             {
-                Console.WriteLine("Activity name:{0} and it appeared {1} times", item.Key, item.Value);
+                Console.WriteLine("Activity name:{0} and it appeared {1} times,and probability is {2}%", item.Key, item.Value,(item.Value/totalEventNumber)*100);
             }
  
         }
@@ -122,15 +127,11 @@ namespace Extraction
         /// </summary>
         public void Show_TotalActivityNumber()
         {
-            //int sum = 0;
-            //foreach (int a in Activity_Dic.Values)
-            //{
-            //    sum += a;
 
-            //}
             using (Week8Container container = new Week8Container())
             {
                 Console.WriteLine("Total event Number is" + container.DurationSet.Count());
+                
                 
             }
           
