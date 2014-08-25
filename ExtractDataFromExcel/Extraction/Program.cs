@@ -7,6 +7,7 @@ using System.Data;
 using Common;
 using System.Threading;
 using System.IO;
+using System.Xml;
 namespace Extraction
 {
 
@@ -34,7 +35,7 @@ namespace Extraction
             this.ds=this.getDataSet();//read the excel and get new data set
             this.GenerateXML();
             this.classify();//classify the activity update the dictionary and write into the database again
-            this.Show_ActivityNumber();//show activity number by category
+            this.GenerateXML_ActivityNumber();//show activity number by category
             this.Show_TotalActivityNumber();//show total activity number
             Console.WriteLine("Last week event number is :" + this.Last_Week_Event_Number());
             Console.WriteLine("Last two week event number is :" + this.Last_TwoWeek_Event_Number());
@@ -113,13 +114,34 @@ namespace Extraction
         /// <summary>
         /// show activity number by category
         /// </summary>
-        public void Show_ActivityNumber()
+        public void GenerateXML_ActivityNumber()
         {
+            //先判断xml文件是否存在，如果存在则删除
+            //
+            if (File.Exists(@"C:\Users\Zhigang Zhang\Documents\visual studio 2010\Projects\ExtractDataFromExcel\Extraction\XML\duration_numberOfActivity.xml"))
+            {
+                File.Delete(@"C:\Users\Zhigang Zhang\Documents\visual studio 2010\Projects\ExtractDataFromExcel\Extraction\XML\duration_numberOfActivity.xml");
+            }
             
+            XmlDocument doc = new XmlDocument();
+            XmlElement root=doc.CreateElement("Activities");
+            doc.AppendChild(root);
             foreach (var item in Activity_Dic)
             {
+                XmlElement group = doc.CreateElement("Group");
+                XmlElement name = doc.CreateElement("activity_name");
+                name.InnerText = item.Key;
+                XmlElement number = doc.CreateElement("activity_number");
+                number.InnerText = item.Value.ToString();
+                group.AppendChild(name);
+                group.AppendChild(number);
+                root.AppendChild(group);
+
                 Console.WriteLine("Activity name:{0} and it appeared {1} times,and probability is {2}%", item.Key, item.Value,(item.Value/totalEventNumber)*100);
             }
+            //persist into XML data fomat,in order to let to web application to analyze
+            
+             doc.Save(@"C:\Users\Zhigang Zhang\Documents\visual studio 2010\Projects\ExtractDataFromExcel\Extraction\XML\duration_numberOfActivity.xml"); 
  
         }
         /// <summary>
@@ -254,12 +276,38 @@ namespace Extraction
         {
             
             string xmlDoc = this.ds.GetXml();
-            StreamWriter sw = new StreamWriter("duration.xml",false);
+            StreamWriter sw = new StreamWriter(@"C:\Users\Zhigang Zhang\Documents\visual studio 2010\Projects\ExtractDataFromExcel\Extraction\XML\duration.xml",false);
             sw.Write(xmlDoc);
             sw.Flush();
             sw.Close();
         }
+        //public void GenerateXML_DurationDayByDay
+        //{
+        //                //先判断xml文件是否存在，如果存在则删除
+        //    //
 
+        //                if (File.Exist(@"C:\Users\Zhigang Zhang\Documents\visual studio 2010\Projects\ExtractDataFromExcel\Extraction\XML\duration_ActivityNumberDaybyDay.xml"))
+        //{
+        //        File.Delete(@"C:\Users\Zhigang Zhang\Documents\visual studio 2010\Projects\ExtractDataFromExcel\Extraction\XML\duration_ActivityNumberDaybyDay.xml");
+        //}
+        //    XmlDocument doc = new XmlDocument();
+        //    XmlElement root=doc.CreateElement("ActivityNumberPair");
+        //    doc.AppendChild(root);
+        //    //我需要有一个字典，键是日期，值是计数
+        //    //遍历duration XML文件
+        //    //如果是新日期，则加入字典,计数加一
+        //    //如果是已经存在的日期，计数加一
+
+
+        //    foreach (var item in Activity_Dic)
+        //    {
+
+        //    }
+        //    //persist into XML data fomat,in order to let to web application to analyze
+            
+        //     doc.Save(@"C:\Users\Zhigang Zhang\Documents\visual studio 2010\Projects\ExtractDataFromExcel\Extraction\XML\duration_numberOfActivity.xml"); 
+ 
+        //}
         
     }
 }
